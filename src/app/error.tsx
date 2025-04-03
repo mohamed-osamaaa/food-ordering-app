@@ -27,14 +27,14 @@ const ErrorPage = ({ error, reset }: ErrorPageProps) => {
                 onClick={reset}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all"
+                className="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all"
             >
                 Try Again
             </motion.button>
 
             <Link
                 href="/"
-                className="mt-4 text-lg text-blue-600 hover:text-blue-800 underline transition-all"
+                className="mt-4 px-5 py-2.5 rounded-lg text-lg bg-red-600 text-white hover:text-red-700 shadow-md"
             >
                 Go to Home Page
             </Link>
