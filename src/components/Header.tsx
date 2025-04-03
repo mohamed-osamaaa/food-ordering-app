@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Menu, ShoppingCart, X } from "lucide-react";
 import Link from "next/link";
 
 const Header = () => {
-    const [cartCount, setCartCount] = useState(3);
+    const [cartCount, setCartCount] = useState(4);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,16 +13,36 @@ const Header = () => {
     const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
     const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
+    // Function to check the authentication cookie
+    const checkAuthFromCookies = () => {
+        const cookies = document.cookie.split("; ");
+        const sessionCookie = cookies.find((cookie) =>
+            cookie.startsWith("jwtToken=")
+        );
+
+        if (sessionCookie) {
+            // const sessionData = sessionCookie.split("=")[1];
+            setIsLoggedIn(true);
+            // setCartCount(userData.cartCount || 0);
+        }
+    };
+
+    useEffect(() => {
+        checkAuthFromCookies();
+    }, []);
+
     return (
-        <div className="flex justify-between items-center mt-5 mb-5 gap-5 px-5 md:px-10 z-50">
+        <div className="flex justify-between items-center mt-5 mb-5 md:gap-5 pl-5 pr-5 md:px-16 z-50">
             <div className="flex justify-start">
-                <h1 className="text-3xl text-red-500 font-bold">ST PIZZA</h1>
+                <h1 className="text-red-500 font-bold text-xl md:text-3xl">
+                    ST PIZZA
+                </h1>
             </div>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex justify-center gap-5 text-sm sm:text-base">
                 <Link
-                    href="/home"
+                    href="/"
                     className="font-bold text-gray-600 mx-5 hover:text-red-500 transition"
                 >
                     Home
@@ -47,6 +67,32 @@ const Header = () => {
                 </Link>
             </div>
 
+            {/* Right Side */}
+            <div className="flex items-center gap-7">
+                {isLoggedIn ? (
+                    <Link
+                        href="/register"
+                        className="bg-red-500 text-white md:font-bold py-1 px-2 md:py-2.5 md:px-5 rounded-3xl"
+                    >
+                        Register
+                    </Link>
+                ) : (
+                    <div className="text-white md:font-bold py-1 px-2 md:py-2.5 md:px-5 rounded-3xl">
+                        {"        "}
+                    </div>
+                )}
+
+                {/* Shopping Cart */}
+                <div className="relative cursor-pointer">
+                    <ShoppingCart className="size-6 md:size-7" />
+                    {cartCount > 0 && (
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                            {cartCount}
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
                 <button onClick={toggleMenu} className="text-gray-600">
@@ -56,7 +102,7 @@ const Header = () => {
 
             {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-center md:hidden">
+                <div className="absolute top-16 right-0 w-56 py-5 bg-white shadow-2xl z-40 flex flex-col items-start pl-4 md:hidden">
                     <Link
                         href="/home"
                         className="block py-2 text-gray-600 hover:text-red-500"
@@ -87,47 +133,6 @@ const Header = () => {
                     </Link>
                 </div>
             )}
-
-            {/* Right Side */}
-            <div className="flex items-center gap-5">
-                {isLoggedIn ? (
-                    <div className="relative">
-                        <div
-                            className="font-bold text-gray-600 cursor-pointer"
-                            onClick={toggleDropdown}
-                        >
-                            Hello, User
-                        </div>
-                        {isDropdownOpen && (
-                            <div className="absolute right-0 bg-white shadow-lg rounded-lg p-2 mt-2 w-40">
-                                <Link
-                                    href="/logout"
-                                    className="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded"
-                                >
-                                    Logout
-                                </Link>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <Link
-                        href="/login"
-                        className="bg-red-500 text-white font-bold py-2.5 px-5 rounded-3xl hidden md:block"
-                    >
-                        Login
-                    </Link>
-                )}
-
-                {/* Shopping Cart */}
-                <div className="relative cursor-pointer">
-                    <ShoppingCart size={30} />
-                    {cartCount > 0 && (
-                        <div className="absolute -top-3 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            {cartCount}
-                        </div>
-                    )}
-                </div>
-            </div>
         </div>
     );
 };
