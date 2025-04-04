@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { Menu, ShoppingCart, X } from "lucide-react";
+import { Menu, ShoppingCart, User, X } from "lucide-react";
 import Link from "next/link";
 
 const Header = () => {
@@ -32,9 +32,9 @@ const Header = () => {
     }, []);
 
     return (
-        <div className="flex justify-between items-center mt-5 mb-5 md:gap-5 pl-5 pr-5 md:px-16 z-50">
+        <div className="flex justify-between items-center mt-5 mb-5 md:gap-5 px-5 lg:px-16 z-50">
             <div className="flex justify-start">
-                <h1 className="text-red-500 font-bold text-xl md:text-3xl">
+                <h1 className="text-red-500 font-bold text-xl lg:text-3xl">
                     ST PIZZA
                 </h1>
             </div>
@@ -77,11 +77,10 @@ const Header = () => {
                         Register
                     </Link>
                 ) : (
-                    <div className="text-white md:font-bold py-1 px-2 md:py-2.5 md:px-5 rounded-3xl">
-                        {"        "}
+                    <div className="text-white md:font-bold py-1 px-2 md:py-2.5 md:px-5 rounded-3xl flex items-center justify-center bg-gray-700 cursor-pointer">
+                        <User className="w-5 h-5" />
                     </div>
                 )}
-
                 {/* Shopping Cart */}
                 <div className="relative cursor-pointer">
                     <ShoppingCart className="size-6 md:size-7" />
@@ -91,20 +90,23 @@ const Header = () => {
                         </div>
                     )}
                 </div>
-            </div>
+                {/* Mobile Menu Button */}
+                <div className="md:hidden flex items-center">
+                    <button onClick={toggleMenu} className="text-gray-600">
+                        {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
+                    </button>
+                </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center">
-                <button onClick={toggleMenu} className="text-gray-600">
-                    {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
-                </button>
-            </div>
-
-            {/* Mobile Menu */}
-            {isMenuOpen && (
-                <div className="absolute top-16 right-0 w-56 py-5 bg-white shadow-2xl z-40 flex flex-col items-start pl-4 md:hidden">
+                {/* Mobile Menu */}
+                <div
+                    className={`absolute top-16 right-0 w-56 py-5 bg-white shadow-2xl z-40 flex flex-col items-start pl-4 md:hidden transition-all duration-500 ease-in-out transform ${
+                        isMenuOpen
+                            ? "opacity-100 scale-100 translate-y-0"
+                            : "opacity-0 scale-95 -translate-y-5 pointer-events-none"
+                    }`}
+                >
                     <Link
-                        href="/home"
+                        href="/"
                         className="block py-2 text-gray-600 hover:text-red-500"
                         onClick={toggleMenu}
                     >
@@ -132,7 +134,7 @@ const Header = () => {
                         Contact
                     </Link>
                 </div>
-            )}
+            </div>
         </div>
     );
 };
