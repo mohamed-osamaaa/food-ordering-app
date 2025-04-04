@@ -22,4 +22,81 @@ model User {
   photo     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  carts  Cart[]
+  orders Order[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  imgURL      String?
+  count       Int         @default(0)
+  price       Float?
+  sizePrices  SizePrice[]
+  createdAt   DateTime    @default(now())
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  extras     Extra[]
+  cartItems  Cart[]
+  orderItems OrderItem[]
+}
+
+model SizePrice {
+  id    Int    @id @default(autoincrement())
+  size  String
+  price Float
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Extra {
+  id    Int    @id @default(autoincrement())
+  name  String
+  price Float
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Cart {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity Int @default(1)
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  totalPrice Float
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        Int   @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
