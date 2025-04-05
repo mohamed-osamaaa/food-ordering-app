@@ -43,6 +43,7 @@ const Register = () => {
 
             if (response.ok) {
                 setSuccess("Registration successful! Redirecting...");
+                localStorage.setItem("isLogin", "true");
                 setTimeout(() => router.push("/"), 1500);
                 setFormData({ email: "", password: "" });
             } else {
@@ -56,7 +57,7 @@ const Register = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
+        <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg mt-28 border-2 border-red-500">
             <h1 className="text-2xl font-bold text-center text-gray-800 mb-4">
                 Register
             </h1>
@@ -107,7 +108,7 @@ const Register = () => {
 
                 <button
                     type="submit"
-                    className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     disabled={loading}
                 >
                     {loading ? "Registering..." : "Register"}
