@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
         const existingUser = await prisma.user.findUnique({
             where: { email: body.email },
         });
+
         if (existingUser) {
             return NextResponse.json(
                 { message: "This email is already registered" },
@@ -48,7 +49,6 @@ export async function POST(request: NextRequest) {
         });
 
         const cookie = setCookie({ id: newUser.id, role: newUser.role });
-
         return NextResponse.json(
             { ...newUser, message: "Registered & Authenticated" },
             {

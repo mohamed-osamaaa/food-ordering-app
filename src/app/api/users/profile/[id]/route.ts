@@ -1,18 +1,11 @@
 import bcrypt from "bcryptjs";
-import cloudinary from "cloudinary";
 import { NextRequest, NextResponse } from "next/server";
 
+import cloudinary from "@/utils/cloudinary";
 import prisma from "@/utils/db";
 import { UpdateUserDto } from "@/utils/dtos";
 import { updateUserSchema } from "@/utils/validationSchemas";
 import { verifyToken } from "@/utils/verifyToken";
-
-// Cloudinary configuration
-cloudinary.v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 interface Props {
     params: { id: string };
@@ -61,21 +54,17 @@ export async function PUT(request: NextRequest, { params }: Props) {
         // Handle image upload if present
         let imageUrl: string | undefined;
         if (body.photo) {
-            const uploadResult = await cloudinary.v2.uploader.upload(
-                body.photo,
-                {
-                    folder: "user_profiles",
-                    use_filename: true,
-                    unique_filename: true,
-                }
-            );
+            const uploadResult = await cloudinary.uploader.upload(body.photo, {
+                folder: "user_profiles",
+                use_filename: true,
+                unique_filename: true,
+            });
             imageUrl = uploadResult.secure_url;
         }
 
         const updatedUser = await prisma.user.update({
             where: { id: parseInt(params.id) },
             data: {
-                username: body.username,
                 email: body.email,
                 password: body.password,
                 photo: imageUrl, // Save Cloudinary image URL in the database

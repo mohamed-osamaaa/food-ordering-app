@@ -1,18 +1,15 @@
-import {
-  NextApiRequest,
-  NextApiResponse,
-} from 'next';
+import { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from '@/utils/db';
+import cloudinary from "@/utils/cloudinary";
+import prisma from "@/utils/db";
 
-// Define a type for the product creation request body
 interface CreateProductRequest {
     name: string;
     description?: string;
     price: number;
     categoryId: number;
     count: number;
-    imgURL?: string;
+    imgBase64?: string;
 }
 
 export default async function handler(
@@ -23,7 +20,7 @@ export default async function handler(
         try {
             const products = await prisma.product.findMany({
                 include: {
-                    category: true, // Include category for product details (optional)
+                    category: true,
                 },
             });
             res.status(200).json(products);
@@ -37,10 +34,9 @@ export default async function handler(
             price,
             categoryId,
             count,
-            imgURL,
+            imgBase64,
         }: CreateProductRequest = req.body;
 
-        // Validate required fields
         if (!name || !categoryId || !price || !count) {
             return res.status(400).json({
                 error: "Product name, category, price, and count are required",
@@ -48,6 +44,20 @@ export default async function handler(
         }
 
         try {
+            let imageUrl: string | undefined;
+
+            if (imgBase64) {
+                const uploadResult = await cloudinary.uploader.upload(
+                    imgBase64,
+                    {
+                        folder: "products",
+                        use_filename: true,
+                        unique_filename: true,
+                    }
+                );
+                imageUrl = uploadResult.secure_url;
+            }
+
             const newProduct = await prisma.product.create({
                 data: {
                     name,
@@ -55,15 +65,15 @@ export default async function handler(
                     price,
                     categoryId: parseInt(categoryId.toString(), 10),
                     count: parseInt(count.toString(), 10),
-                    imgURL,
+                    imgURL: imageUrl,
                 },
             });
+
             res.status(201).json(newProduct);
         } catch (error) {
             res.status(500).json({ error: "Failed to create product" });
         }
     } else {
-        // Handle unsupported methods
         res.status(405).json({ error: "Method Not Allowed" });
     }
 }
