@@ -1,9 +1,7 @@
-import {
-  NextApiRequest,
-  NextApiResponse,
-} from 'next';
+import { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from '@/utils/db';
+import cloudinary from "@/utils/cloudinary";
+import prisma from "@/utils/db";
 
 export default async function handler(
     req: NextApiRequest,
@@ -16,36 +14,36 @@ export default async function handler(
     }
 
     if (req.method === "GET") {
-        // Get a specific product by ID
         try {
             const product = await prisma.product.findUnique({
                 where: { id: parseInt(id) },
                 include: {
-                    category: true, // Include category details (optional)
-                    sizePrices: true, // Include size prices if needed
-                    extras: true, // Include extras if needed
+                    category: true,
+                    sizePrices: true,
+                    extras: true,
                 },
             });
+
             if (!product) {
                 return res.status(404).json({ error: "Product not found" });
             }
+
             res.status(200).json(product);
         } catch (error) {
             res.status(500).json({ error: "Failed to fetch product" });
         }
     } else if (req.method === "DELETE") {
-        // Delete a specific product by ID
         try {
             const deletedProduct = await prisma.product.delete({
                 where: { id: parseInt(id) },
             });
+
             res.status(200).json(deletedProduct);
         } catch (error) {
             res.status(500).json({ error: "Failed to delete product" });
         }
     } else if (req.method === "PUT") {
-        // Edit a specific product by ID
-        const { name, description, price, categoryId, count, imgURL } =
+        const { name, description, price, categoryId, count, imgBase64 } =
             req.body;
 
         if (!name || !categoryId || !price || !count) {
@@ -55,6 +53,20 @@ export default async function handler(
         }
 
         try {
+            let imageUrl: string | undefined;
+
+            if (imgBase64) {
+                const uploadResult = await cloudinary.uploader.upload(
+                    imgBase64,
+                    {
+                        folder: "products",
+                        use_filename: true,
+                        unique_filename: true,
+                    }
+                );
+                imageUrl = uploadResult.secure_url;
+            }
+
             const updatedProduct = await prisma.product.update({
                 where: { id: parseInt(id) },
                 data: {
@@ -63,9 +75,10 @@ export default async function handler(
                     price,
                     categoryId: parseInt(categoryId),
                     count: parseInt(count),
-                    imgURL,
+                    imgURL: imageUrl,
                 },
             });
+
             res.status(200).json(updatedProduct);
         } catch (error) {
             res.status(500).json({ error: "Failed to update product" });
